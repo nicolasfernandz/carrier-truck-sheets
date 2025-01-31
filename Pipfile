@@ -10,6 +10,7 @@ xlsxwriter = "*"
 json-minify = "*"
 
 [dev-packages]
+black = "*"
 
 [requires]
 python_version = "3.12"
