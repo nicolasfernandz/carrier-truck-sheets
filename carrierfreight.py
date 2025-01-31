@@ -28,6 +28,7 @@ class CarrierFreight:
         )
         # rates
         self.input_path_rate = input_paths["input_path_rates"]
+        self.df_rate = None
         # dinama
         self.input_path_dinama = input_paths["dinama"]
         # fuel
@@ -156,6 +157,19 @@ class CarrierFreight:
                     value=self.df_fuel.shape[0]
                 )
             )
+        
+        # rates
+        rates_read=pd.read_excel(self.input_path_rate, sheet_name="Actual", usecols="A,B,D")
+        df_rate = pd.merge(self.bdu, rates_read[['Sector/Pila origen', 'Destino', 'Tarifa_Sub']], how='left',left_on=['Origen','Destino'], right_on=['Sector/Pila origen','Destino'])
+        df_rate = df_rate[["Fecha", "Matrícula", "Origen", "Destino", "Remito", "Pago a", "Peso", "Tarifa_Sub"]]
+        df_rate['Total'] = df_rate.Peso * df_rate.Tarifa_Sub
+        self.df_rate = df_rate
+        logger.info(
+            "total number of rows of the rate dataframe is {value}".format(
+                value=rates_read.shape[0]
+            )
+        )
+
 
     def run(self):
         """
