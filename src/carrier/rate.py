@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from carrier.utils import (
+from utils.utils import (
     get_input_path_rate,
     read_data_frame,
 )

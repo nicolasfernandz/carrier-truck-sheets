@@ -1,7 +1,7 @@
 import logging
 import datetime
 import pandas as pd
-from carrier.utils import is_NaN, get_process_month, get_output_path
+from utils.utils import is_NaN, get_process_month, get_output_path
 from carrier.bdu import get_all_bdus
 from carrier.fuel import get_fuel
 from carrier.rate import get_bdus_with_rates

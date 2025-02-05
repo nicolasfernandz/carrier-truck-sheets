@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from carrier.utils import (
+from utils.utils import (
     get_input_path_file_xslx,
     get_fuel_file_name,
     is_fuel_present,

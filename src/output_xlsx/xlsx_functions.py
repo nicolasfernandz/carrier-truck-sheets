@@ -1,6 +1,6 @@
 import pandas as pd
 from output_xlsx import headers
-from carrier.utils import get_contractor, is_fuel_present
+from utils.utils import get_contractor, is_fuel_present
 from carrier.rate import get_tree_field_name
 from config import CONFIG
 

@@ -1,4 +1,4 @@
 import json
 
-with open("config.json", "r") as file:
+with open("data/config.json", "r") as file:
     CONFIG = json.load(file)
