@@ -30,7 +30,7 @@ def get_all_bdus():
         bdu_read.columns = ["Fecha","Matrícula","Peso","Origen","Destino","Remito","Pago a",]
         # fmt: on
         bdu_read["Matrícula"] = bdu_read["Matrícula"].str.upper()
-        df = pd.concat([df, bdu_read]) #, ignore_index=True)
+        df = pd.concat([df, bdu_read])  # , ignore_index=True)
         logger.info(
             "{value} rows have been added to the travel dataframe".format(
                 value=bdu_read.shape[0]

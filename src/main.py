@@ -21,26 +21,37 @@ def main():
     # Get application logger
     logger.info("Start travel processing: {}".format(datetime.datetime.now()))
 
-    month= get_process_month()
-    output_path= get_output_path()
+    month = get_process_month()
+    output_path = get_output_path()
     df_bdu = get_all_bdus()
-    df_fuel = get_fuel() #combustible_junio
-    df_bdu_with_rates = get_bdus_with_rates(df_bdu) #df_datos_tarifas
-    df_truck_id_with_rates = get_truck_id_with_rates(df_bdu_with_rates) #joined
-    df_transporters_rut = get_transporters_rut() #df_transportistas_rut
-    vec_transporters = df_truck_id_with_rates["Transportista"].unique() #vec_transportistas
+    df_fuel = get_fuel()  # combustible_junio
+    df_bdu_with_rates = get_bdus_with_rates(df_bdu)  # df_datos_tarifas
+    df_truck_id_with_rates = get_truck_id_with_rates(df_bdu_with_rates)  # joined
+    df_transporters_rut = get_transporters_rut()  # df_transportistas_rut
+    vec_transporters = df_truck_id_with_rates[
+        "Transportista"
+    ].unique()  # vec_transportistas
 
-    outputFilePath = output_path + 'Liquidaciones_Subcontratados_' + month + '.xlsx'
-    writer = pd.ExcelWriter(outputFilePath, engine='xlsxwriter')
+    outputFilePath = output_path + "Liquidaciones_Subcontratados_" + month + ".xlsx"
+    writer = pd.ExcelWriter(outputFilePath, engine="xlsxwriter")
     df_payment_summary = None
     for i in range(0, len(vec_transporters)):
-        if (not is_NaN(vec_transporters[i]) ):
-            df_payment_summary = write_trips(df_truck_id_with_rates, df_transporters_rut, df_fuel, vec_transporters[i], writer, df_payment_summary)
+        if not is_NaN(vec_transporters[i]):
+            df_payment_summary = write_trips(
+                df_truck_id_with_rates,
+                df_transporters_rut,
+                df_fuel,
+                vec_transporters[i],
+                writer,
+                df_payment_summary,
+            )
     writer.close()
 
-    outputFilePath = output_path + 'Resumen_de_pagos_' + month + '.xlsx'
-    writer = pd.ExcelWriter(outputFilePath, engine='xlsxwriter')
-    df_payment_summary.to_excel(writer, sheet_name="Resumen de pagos", index=False, startrow=0, startcol=0)
+    outputFilePath = output_path + "Resumen_de_pagos_" + month + ".xlsx"
+    writer = pd.ExcelWriter(outputFilePath, engine="xlsxwriter")
+    df_payment_summary.to_excel(
+        writer, sheet_name="Resumen de pagos", index=False, startrow=0, startcol=0
+    )
     writer.close()
 
     print(df_payment_summary)

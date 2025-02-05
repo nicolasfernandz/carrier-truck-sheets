@@ -65,5 +65,12 @@ def get_fuel():
                 value=df_fuel.shape[0]
             )
         )
-    df_fuel.columns = ['Fecha de Emisión', 'Camión', 'Comprobante', 'Importe', 'Transportista', 'Estacion']
+    df_fuel.columns = [
+        "Fecha de Emisión",
+        "Camión",
+        "Comprobante",
+        "Importe",
+        "Transportista",
+        "Estacion",
+    ]
     return df_fuel
