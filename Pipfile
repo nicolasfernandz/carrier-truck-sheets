@@ -11,6 +11,9 @@ json-minify = "*"
 
 [dev-packages]
 black = "*"
+pytest = "*"
+pytest-cov = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.12"
