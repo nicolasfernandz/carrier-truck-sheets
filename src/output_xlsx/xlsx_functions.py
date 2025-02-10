@@ -868,8 +868,6 @@ def write_forests_with_tax(vec_forest, df_carrier, writer, sheetName, index_row)
             [df_carrier_forest, df_total_forest.to_frame().T], ignore_index=True
         )
 
-        print(bdu_total)
-
         bdu_total = bdu_total[
             [
                 "Fecha llegada en balanza",
@@ -1016,20 +1014,6 @@ def write_trips(
             tipo_cuenta = df_carrier_rut.iloc[0, 3]
             cuenta = df_carrier_rut.iloc[0, 4]
             anterior = df_carrier_rut.iloc[0, 5]
-
-            print(
-                carrier
-                + " "
-                + rut
-                + " "
-                + banco
-                + " "
-                + tipo_cuenta
-                + " "
-                + str(cuenta)
-                + " "
-                + str(anterior)
-            )
 
             if is_fuel_present():
                 df_fuel_loads = df_fuel[df_fuel["Transportista"] == carrier]
