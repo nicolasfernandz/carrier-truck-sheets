@@ -42,6 +42,7 @@ def get_truck_id_with_rates(df_bdu_with_rates):
             "Remito",
             "Pago a",
             "Transportista",
+            "IVA",
         ]
     ]
     return df_truck_id_with_rates

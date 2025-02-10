@@ -716,10 +716,12 @@ def write_exempt_forests(vec_forest, df_carrier, writer, sheetName, index_row):
         if df_carrier_forest["Origen"].count() == 0:
             continue
 
-        _destination = df_carrier_forest.Destino.iloc[0]
+        destination = df_carrier_forest.Destino.iloc[0]
         # add the totals
         df_total_forest = df_carrier_forest.sum(numeric_only=True)
         df_total_forest["$/tonelada"] = df_carrier_forest["$/tonelada"].mean()
+
+        df_total_forest = df_total_forest.iloc[[0, 1, 2]]
 
         df_carrier_forest = df_carrier_forest.sort_values(
             by=["Fecha llegada en balanza"]
@@ -785,7 +787,7 @@ def write_exempt_forests(vec_forest, df_carrier, writer, sheetName, index_row):
         worksheet.write(
             index_row - 2,
             0,
-            get_tree_field_name(forest, _destination),
+            get_tree_field_name(forest, destination),
             headers.get_cell_format(
                 workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
             ),
@@ -843,13 +845,13 @@ def write_forests_with_tax(vec_forest, df_carrier, writer, sheetName, index_row)
         if df_carrier_forest["Origen"].count() == 0:
             continue
 
-        _destination = df_carrier_forest.Destino.iloc[0]
+        destination = df_carrier_forest.Destino.iloc[0]
 
         # add the totals
         df_total_forest = df_carrier_forest.sum(numeric_only=True)
-
         df_total_forest["$/tonelada"] = df_carrier_forest["$/tonelada"].mean()
-        print(df_total_forest)
+
+        df_total_forest = df_total_forest.iloc[[0, 1, 2]]
 
         df_carrier_forest = df_carrier_forest.sort_values(
             by=["Fecha llegada en balanza"]
@@ -940,7 +942,7 @@ def write_forests_with_tax(vec_forest, df_carrier, writer, sheetName, index_row)
         worksheet.write(
             index_row - 2,
             0,
-            get_tree_field_name(forest, _destination),
+            get_tree_field_name(forest, destination),
             headers.get_cell_format(
                 workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
             ),
@@ -1049,6 +1051,7 @@ def write_trips(
                     "Origen",
                     "Destino",
                     "Remito",
+                    "IVA",
                 ]
             ]
             df_carrier.columns = [
@@ -1060,12 +1063,11 @@ def write_trips(
                 "Origen",
                 "Destino",
                 "Remito",
+                "IVA",
             ]
 
             df_carrier_excempt = df_carrier[
-                (df_carrier["Destino"] == "MDP")
-                | (df_carrier["Destino"] == "UPM")
-                | (df_carrier["Destino"] == "UPM2")
+                (df_carrier["IVA"] == 0)
             ]
 
             index_row, total_excempt = write_exempt_forests(
@@ -1078,33 +1080,9 @@ def write_trips(
                     writer, sheetName, index_row, workbook, worksheet, total_excempt
                 )
 
-            # TO DO - TAX!!!
             df_carrier_tax = df_carrier[
-                (df_carrier["Destino"] == "Kluntex SA")
-                | (df_carrier["Destino"] == "Murchison S.A.")
-                | (df_carrier["Destino"] == "Sierra Verde")
-                | (df_carrier["Destino"] == "Acopio Olimar")
-                | (df_carrier["Destino"] == "Planta Olimar")
-                | (df_carrier["Destino"] == "ACOPIO CERRO CHATO")
-                | (df_carrier["Destino"] == "ACOPIO")
-                | (df_carrier["Destino"] == "Balanza")
-                | (df_carrier["Destino"] == "PLANIR MVDEO")
-                | (df_carrier["Destino"] == "PLANIR PROGRESO")
-                | (df_carrier["Destino"] == "ACOPIO SANTAMARIA")
-                | (df_carrier["Destino"] == "Acopio Santamaria")
-                | (df_carrier["Destino"] == "ACOPIO PLANIR")
-                | (df_carrier["Destino"] == "ACOPIO TACUAREMBÓ")
-                | (df_carrier["Destino"] == "JUANGO")
-                | (df_carrier["Destino"] == "Chipper")
-                | (df_carrier["Destino"] == "DEPOSITO DE PACO")
-                | (df_carrier["Destino"] == "URCEL")
-                | (df_carrier["Destino"] == "FAS")
-                | (df_carrier["Destino"] == "IDALEN S.A.")
-                | (df_carrier["Destino"] == "BALANZA TROZA 5")
-                | (df_carrier["Destino"] == "Transportes José Pedro Varela S. A")
+                (df_carrier["IVA"] == 22)
             ]
-
-            print(df_carrier_tax)
 
             index_row, total_tax = write_forests_with_tax(
                 vec_forest, df_carrier_tax, writer, sheetName, index_row
