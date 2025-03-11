@@ -65,6 +65,18 @@ def get_fuel():
                 value=df_fuel.shape[0]
             )
         )
+    else:
+        df_fuel = pd.DataFrame(
+            columns=[
+                "Fecha de Emisión",
+                "Matrícula",
+                "Comprobante",
+                "Debe",
+                "Transportista",
+                "Estacion",
+            ]
+        )
+
     df_fuel.columns = [
         "Fecha de Emisión",
         "Camión",
