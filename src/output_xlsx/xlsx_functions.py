@@ -716,119 +716,136 @@ def write_exempt_forests(vec_forest, df_carrier, writer, sheetName, index_row):
         if df_carrier_forest["Origen"].count() == 0:
             continue
 
-        destination = df_carrier_forest.Destino.iloc[0]
-        # add the totals
-        df_total_forest = df_carrier_forest.sum(numeric_only=True)
-        df_total_forest["$/tonelada"] = df_carrier_forest["$/tonelada"].mean()
+        # get the list of destinations forests for that origin forest trips
+        vec_destination_forest = df_carrier_forest["Destino"].unique()
 
-        df_total_forest = df_total_forest.iloc[[0, 1, 2]]
+        for i in range(0, len(vec_destination_forest)):
+            destination_forest = vec_destination_forest[i]
 
-        df_carrier_forest = df_carrier_forest.sort_values(
-            by=["Fecha llegada en balanza"]
-        )
-        df_carrier_forest["Fecha llegada en balanza"] = pd.to_datetime(
-            df_carrier_forest["Fecha llegada en balanza"]
-        ).dt.strftime("%d/%m/%Y")
+            # filter with from origin and destination
+            df_carrier_forest = df_carrier[
+                (df_carrier["Origen"] == forest)
+                & (df_carrier["Destino"] == destination_forest)
+            ]
 
-        total_exempt += df_total_forest["$ Totales"]
+            destination = df_carrier_forest.Destino.iloc[0]
+            # add the totals
+            df_total_forest = df_carrier_forest.sum(numeric_only=True)
+            df_total_forest["$/tonelada"] = df_carrier_forest["$/tonelada"].mean()
 
-        # concat all the trips of the forest with their totals
-        # bdu_total = df_transportista_monte.append(df_monte_totales, ignore_index=True)
-        bdu_total = pd.concat(
-            [df_carrier_forest, df_total_forest.to_frame().T], ignore_index=True
-        )
+            df_total_forest = df_total_forest.iloc[[0, 1, 2]]
 
-        if bdu_total["Fecha llegada en balanza"].count() > 0:
-            bdu_total.to_excel(
-                writer,
-                sheet_name=sheetName,
-                index=False,
-                startrow=index_row,
-                startcol=0,
+            df_carrier_forest = df_carrier_forest.sort_values(
+                by=["Fecha llegada en balanza"]
+            )
+            df_carrier_forest["Fecha llegada en balanza"] = pd.to_datetime(
+                df_carrier_forest["Fecha llegada en balanza"]
+            ).dt.strftime("%d/%m/%Y")
+
+            total_exempt += df_total_forest["$ Totales"]
+
+            # concat all the trips of the forest with their totals
+            # bdu_total = df_transportista_monte.append(df_monte_totales, ignore_index=True)
+            bdu_total = pd.concat(
+                [df_carrier_forest, df_total_forest.to_frame().T], ignore_index=True
             )
 
-        workbook = writer.book
-        worksheet = writer.sheets[sheetName]
-        worksheet.set_column("A:A", 18)
-        worksheet.set_column("B:B", 13)
-        worksheet.set_column("C:C", 13)
-        worksheet.set_column("D:D", 13)
-        worksheet.set_column("E:E", 13)
-        worksheet.set_column("F:F", 22)
-        worksheet.set_column("G:G", 18)
-        worksheet.set_column("J:J", 13)
-        money_fmt = workbook.add_format(
-            {
-                "valign": "top",
-                "text_wrap": True,
-            }
-        )
-        worksheet.set_column("H:I", 15, money_fmt)
-
-        # write the column headers with the defined format
-        for col_num, value in enumerate(bdu_total.columns.values):
-            if col_num == 2 or col_num == 3 or col_num == 4:
-                worksheet.write(
-                    index_row,
-                    col_num,
-                    value,
-                    headers.get_cell_format(workbook, color="grey", center=True),
-                )
-            else:
-                worksheet.write(
-                    index_row,
-                    col_num,
-                    value,
-                    headers.get_cell_format(workbook, color="grey", center=True),
+            if bdu_total["Fecha llegada en balanza"].count() > 0:
+                bdu_total.to_excel(
+                    writer,
+                    sheet_name=sheetName,
+                    index=False,
+                    startrow=index_row,
+                    startcol=0,
                 )
 
-        index_row += bdu_total["$ Totales"].count() + 2
+            workbook = writer.book
+            worksheet = writer.sheets[sheetName]
+            worksheet.set_column("A:A", 18)
+            worksheet.set_column("B:B", 13)
+            worksheet.set_column("C:C", 13)
+            worksheet.set_column("D:D", 13)
+            worksheet.set_column("E:E", 13)
+            worksheet.set_column("F:F", 22)
+            worksheet.set_column("G:G", 18)
+            worksheet.set_column("J:J", 13)
+            money_fmt = workbook.add_format(
+                {
+                    "valign": "top",
+                    "text_wrap": True,
+                }
+            )
+            worksheet.set_column("H:I", 15, money_fmt)
 
-        worksheet.write(
-            index_row - 2,
-            0,
-            get_tree_field_name(forest, destination),
-            headers.get_cell_format(
-                workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
-            ),
-        )
-        worksheet.write(
-            index_row - 2,
-            1,
-            "",
-            headers.get_cell_format(
-                workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
-            ),
-        )
+            # write the column headers with the defined format
+            for col_num, value in enumerate(bdu_total.columns.values):
+                if col_num == 2 or col_num == 3 or col_num == 4:
+                    worksheet.write(
+                        index_row,
+                        col_num,
+                        value,
+                        headers.get_cell_format(workbook, color="grey", center=True),
+                    )
+                else:
+                    worksheet.write(
+                        index_row,
+                        col_num,
+                        value,
+                        headers.get_cell_format(workbook, color="grey", center=True),
+                    )
 
-        _range = "A" + str(index_row - 1) + ":B" + str(index_row - 1)
-        worksheet.merge_range(_range, "")
+            index_row += bdu_total["$ Totales"].count() + 2
 
-        for iter, row in enumerate(df_total_forest.to_frame().iterrows()):
-            if row[0] == "Peso neto":
-                worksheet.write(
-                    index_row - 2,
-                    2 + iter,
-                    row[1][0],
-                    headers.get_cell_format(
-                        workbook,
-                        top=0,
-                        left=0,
-                        right=0,
-                        bottom=2,
-                        setnumformat=False,
-                        liquid_de=contractor,
-                    ),
-                )
-            else:
-                worksheet.write(
-                    index_row - 2,
-                    2 + iter,
-                    row[1][0],
-                    headers.get_cell_format(
-                        workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
-                    ),
-                )
+            worksheet.write(
+                index_row - 2,
+                0,
+                get_tree_field_name(forest, destination),
+                headers.get_cell_format(
+                    workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
+                ),
+            )
+            worksheet.write(
+                index_row - 2,
+                1,
+                "",
+                headers.get_cell_format(
+                    workbook, top=0, left=0, right=0, bottom=2, liquid_de=contractor
+                ),
+            )
+
+            _range = "A" + str(index_row - 1) + ":B" + str(index_row - 1)
+            worksheet.merge_range(_range, "")
+
+            for iter, row in enumerate(df_total_forest.to_frame().iterrows()):
+                if row[0] == "Peso neto":
+                    worksheet.write(
+                        index_row - 2,
+                        2 + iter,
+                        row[1][0],
+                        headers.get_cell_format(
+                            workbook,
+                            top=0,
+                            left=0,
+                            right=0,
+                            bottom=2,
+                            setnumformat=False,
+                            liquid_de=contractor,
+                        ),
+                    )
+                else:
+                    worksheet.write(
+                        index_row - 2,
+                        2 + iter,
+                        row[1][0],
+                        headers.get_cell_format(
+                            workbook,
+                            top=0,
+                            left=0,
+                            right=0,
+                            bottom=2,
+                            liquid_de=contractor,
+                        ),
+                    )
 
     return index_row, total_exempt
 
